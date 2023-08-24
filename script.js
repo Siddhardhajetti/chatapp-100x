@@ -4,9 +4,21 @@ $(function () {
   var $messages = $('#messages');
   var $form = $('#chat-form');
 
+  function getUsername() {
+    let username = '';
+
+    while (username === '' || username === null) {
+      username = prompt('Please enter your username:');
+    }
+
+    return username;
+  }
+
+  const username = getUsername();
+
   function sendMessage(message) {
     console.log('Sending message:', message);
-    socket.emit('chat message', message);
+    socket.emit('chat message', { username, message });
   }
 
   function applyEmojis(message) {
@@ -38,7 +50,8 @@ $(function () {
 
   socket.on('chat message', function(msg) {
     console.log('Received message:', msg);
-    $messages.append($('<li>').text(msg));
+    const { username, message } = msg;
+    $messages.append($('<li>').text(`${username}: ${message}`));
     // Scroll to the bottom of the chat window
     $messages.scrollTop($messages[0].scrollHeight);
   });
