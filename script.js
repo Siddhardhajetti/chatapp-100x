@@ -4,12 +4,36 @@ $(function () {
   var $messages = $('#messages');
   var $form = $('#chat-form');
 
-  $form.submit(function() {
-    const message = $input.val();
+  function sendMessage(message) {
     console.log('Sending message:', message);
     socket.emit('chat message', message);
+  }
+
+  function applyEmojis(message) {
+    const emojis = [
+      { keyword: 'hey', emoji: '👋' },
+      { keyword: 'lol', emoji: '😂' },
+      { keyword: 'react', emoji: '⚛️' },
+      { keyword: 'like', emoji: '🤍' },
+      { keyword: 'congratulations', emoji: '🎉' },
+    ];
+
+    emojis.forEach(({ keyword, emoji }) => {
+      const pattern = `\\b${keyword}\\b`; // Use word boundary to match whole words
+      const regex = new RegExp(pattern, 'gi');
+      message = message.replace(regex, emoji);
+    });
+
+    return message;
+  }
+
+  $form.submit(function(e) {
+    e.preventDefault(); // Prevent the form from submitting
+    const message = $input.val().trim(); // Trim whitespace from the message
+    const finalMessage = applyEmojis(message);
+
+    sendMessage(finalMessage);
     $input.val('');
-    return false;
   });
 
   socket.on('chat message', function(msg) {
